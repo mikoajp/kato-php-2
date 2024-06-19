@@ -6,7 +6,7 @@ use App\Factory\MessageDtoFactory;
 use App\Service\MessageProcessorService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class ApiController
 {
