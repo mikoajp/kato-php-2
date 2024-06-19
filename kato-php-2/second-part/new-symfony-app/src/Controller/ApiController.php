@@ -2,37 +2,59 @@
 
 namespace App\Controller;
 
-use App\Api\MessageDTO;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use App\Factory\MessageDtoFactory;
+use App\Service\MessageProcessorService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
-class ApiController extends AbstractController
+class ApiController
 {
+    private MessageProcessorService $messageProcessorService;
+    private MessageDtoFactory $messageDtoFactory;
+
+    public function __construct(
+        MessageProcessorService $messageProcessorService,
+        MessageDtoFactory $messageDtoFactory
+    ) {
+        $this->messageProcessorService = $messageProcessorService;
+        $this->messageDtoFactory = $messageDtoFactory;
+    }
+
     public function processMessage(Request $request): JsonResponse
+    {
+        $data = $this->getRequestData($request);
+
+        if ($data === null) {
+            return new JsonResponse(['error' => 'Invalid JSON data.'], Response::HTTP_BAD_REQUEST);
+        }
+
+        try {
+            $dto = $this->messageDtoFactory->create($data);
+        } catch (\InvalidArgumentException $e) {
+            return new JsonResponse(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
+        }
+
+        $wordCount = $this->processMessageAndCountWords($dto);
+
+        return new JsonResponse([
+            'message' => $dto->getMessage(),
+            'count' => $wordCount
+        ], Response::HTTP_OK);
+    }
+
+    private function getRequestData(Request $request): ?array
     {
         $data = json_decode($request->getContent(), true);
 
-        if (!isset($data['message'])) {
-            return new JsonResponse(['error' => 'Invalid request: "message" field is required'], 400);
-        }
+        return json_last_error() === JSON_ERROR_NONE ? $data : null;
+    }
 
-        $dto = new MessageDto($data['message']);
+    private function processMessageAndCountWords($dto): int
+    {
+        $message = $dto->getMessage();
+        $wordsToMatch = $dto->getWordsToMatch();
 
-        $message = $dto->message;
-        $wordsToMatch = ['hello', 'text'];
-        $wordCount = [];
-
-        foreach ($wordsToMatch as $word) {
-            $count = substr_count(strtolower($message), $word);
-            $wordCount[$word] = $count;
-        }
-
-        $responseData = [
-            'message' => $message,
-            'count' => $wordCount
-        ];
-
-        return new JsonResponse($responseData);
+        return $this->messageProcessorService->countWords($message, $wordsToMatch);
     }
 }
