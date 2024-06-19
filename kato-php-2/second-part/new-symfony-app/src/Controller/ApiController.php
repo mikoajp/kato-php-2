@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Api\MessageDTO;
 use App\Factory\MessageDtoFactory;
 use App\Service\MessageProcessorService;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -10,18 +11,11 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ApiController
 {
-    private MessageProcessorService $messageProcessorService;
-    private MessageDtoFactory $messageDtoFactory;
-
-    public function __construct(
+    public function __invoke(
+        Request $request,
         MessageProcessorService $messageProcessorService,
         MessageDtoFactory $messageDtoFactory
-    ) {
-        $this->messageProcessorService = $messageProcessorService;
-        $this->messageDtoFactory = $messageDtoFactory;
-    }
-
-    public function processMessage(Request $request): JsonResponse
+    ) : JsonResponse
     {
         $data = $this->getRequestData($request);
 
@@ -30,16 +24,14 @@ class ApiController
         }
 
         try {
-            $dto = $this->messageDtoFactory->create($data);
+            $dto = $messageDtoFactory->create($data);
         } catch (\InvalidArgumentException $e) {
             return new JsonResponse(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         }
 
-        $wordCount = $this->processMessageAndCountWords($dto);
-
         return new JsonResponse([
             'message' => $dto->getMessage(),
-            'count' => $wordCount
+            'count' => $this->processMessageAndCountWords($dto, $messageProcessorService)
         ], Response::HTTP_OK);
     }
 
@@ -50,11 +42,11 @@ class ApiController
         return json_last_error() === JSON_ERROR_NONE ? $data : null;
     }
 
-    private function processMessageAndCountWords($dto): int
+    private function processMessageAndCountWords(MessageDTO $dto, MessageProcessorService $messageProcessorService): int
     {
         $message = $dto->getMessage();
         $wordsToMatch = $dto->getWordsToMatch();
 
-        return $this->messageProcessorService->countWords($message, $wordsToMatch);
+        return $messageProcessorService->countWords($message, $wordsToMatch);
     }
 }
