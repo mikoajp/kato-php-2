@@ -2,18 +2,18 @@
 
 namespace App\Controller;
 
-use App\Service\MessageProcessorService;
+use App\Service\MessageService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class FormController extends AbstractController
 {
-    private MessageProcessorService $messageProcessorService;
+    private MessageService $messageService;
 
-    public function __construct(MessageProcessorService $messageProcessorService)
+    public function __construct(MessageService $messageProcessorService)
     {
-        $this->messageProcessorService = $messageProcessorService;
+        $this->messageService = $messageProcessorService;
     }
 
     public function showForm(): Response
@@ -28,7 +28,7 @@ class FormController extends AbstractController
 
         $wordsToMatch = array_map('trim', $wordsToMatch);
 
-        $wordCounts = $this->messageProcessorService->countWords($message, $wordsToMatch);
+        $wordCounts = $this->messageService->countWords($message, $wordsToMatch);
 
         return $this->render('result.html.twig', [
             'message' => $message,

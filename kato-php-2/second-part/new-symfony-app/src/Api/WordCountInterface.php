@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Service;
+namespace App\Api;
 
-interface WordCountStrategy
+interface WordCountInterface
 {
     public function countWords(string $message, array $wordsToMatch): array;
 }

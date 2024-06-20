@@ -2,23 +2,19 @@
 
 namespace App\Controller;
 
-use App\Factory\MessageDtoFactory;
-use App\Service\MessageProcessorService;
+use App\Service\MessageService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class ApiController
 {
-    private MessageProcessorService $messageProcessorService;
-    private MessageDtoFactory $messageDtoFactory;
+    private MessageService $messageService;
 
     public function __construct(
-        MessageProcessorService $messageProcessorService,
-        MessageDtoFactory $messageDtoFactory
+        MessageService $messageService,
     ) {
-        $this->messageProcessorService = $messageProcessorService;
-        $this->messageDtoFactory = $messageDtoFactory;
+        $this->messageService = $messageService;
     }
 
     public function processMessage(Request $request): JsonResponse
@@ -30,7 +26,7 @@ class ApiController
         }
 
         try {
-            $dto = $this->messageDtoFactory->create($data);
+            $dto = $this->messageService->create($data);
         } catch (\InvalidArgumentException $e) {
             return new JsonResponse(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         }
@@ -60,6 +56,6 @@ class ApiController
     private function processMessageAndCountWords(string $message): array
     {
         $wordsToMatch = ['hello', 'text'];
-        return $this->messageProcessorService->countWords($message, $wordsToMatch);
+        return $this->messageService->countWords($message, $wordsToMatch);
     }
 }

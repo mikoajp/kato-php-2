@@ -21,10 +21,10 @@ services:
     App\Service\MessageProcessorService:
         class: App\Service\MessageProcessorService
         arguments:
-            - '@App\Service\SimpleWordCountStrategy'
+            - '@App\Service\SimpleWordCount'
 
-    App\Service\SimpleWordCountStrategy:
-        class: App\Service\SimpleWordCountStrategy
+    App\Service\SimpleWordCount:
+        class: App\Service\SimpleWordCount
 
     App\Controller\FormController:
         class: App\Controller\FormController

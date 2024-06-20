@@ -2,7 +2,9 @@
 
 namespace App\Service;
 
-class SimpleWordCountStrategy implements WordCountStrategy
+use App\Api\WordCountInterface;
+
+class SimpleWordCount implements WordCountInterface
 {
     public function countWords(string $message, array $wordsToMatch): array
     {
