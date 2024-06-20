@@ -8,3 +8,12 @@ api_process_message:
     path: /api/process-message
     controller: App\Controller\ApiController::processMessage
     methods: [POST]
+
+form:
+    path: /form
+    controller: App\Controller\FormController::showForm
+
+process_form:
+    path: /process-form
+    controller: App\Controller\FormController::processForm
+    methods: [POST]

@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="">
+<head>
+    <title>Word Count Form</title>
+</head>
+<body>
+<h1>Word Count Form</h1>
+<form action="{{ path('process_form') }}" method="post">
+    <label for="message">Message:</label><br>
+    <textarea id="message" name="message" rows="4" cols="50" required></textarea><br><br>
+
+    <label for="wordsToMatch">Words to Match (comma-separated):</label><br>
+    <input type="text" id="wordsToMatch" name="wordsToMatch" required><br><br>
+
+    <input type="submit" value="Submit">
+</form>
+</body>
+</html>

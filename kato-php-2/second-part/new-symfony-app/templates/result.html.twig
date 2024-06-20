@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="">
+<head>
+    <title>Word Count Result</title>
+</head>
+<body>
+<h1>Word Count Result</h1>
+<p><strong>Message:</strong> {{ message }}</p>
+<h2>Word Counts</h2>
+<ul>
+    {% for word, count in word_counts %}
+        <li>{{ word }}: {{ count }}</li>
+    {% endfor %}
+</ul>
+<a href="{{ path('form') }}">Go back to form</a>
+</body>
+</html>

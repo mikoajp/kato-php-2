@@ -6,14 +6,11 @@
 parameters:
 
 services:
-
-    # default configuration for services in *this* file
     _defaults:
-        autowire: true      # Automatically injects dependencies in your services.
-        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        autowire: true
+        autoconfigure: true
+        public: false
 
-    # makes classes in src/ available to be used as services
-    # this creates a service per class whose id is the fully-qualified class name
     App\:
         resource: '../src/'
         exclude:
@@ -21,22 +18,15 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
-    App\MessageDtoFactory:
-        class: App\Factory\MessageDtoFactory
-
-    App\MessageProcessorService:
+    App\Service\MessageProcessorService:
         class: App\Service\MessageProcessorService
         arguments:
-            - '@App\SimpleWordCountStrategy'
+            - '@App\Service\SimpleWordCountStrategy'
 
-    App\SimpleWordCountStrategy:
-        class: App\Service\WordCountStrategy\SimpleWordCountStrategy
+    App\Service\SimpleWordCountStrategy:
+        class: App\Service\SimpleWordCountStrategy
 
-    App\Controller\MessageController:
-        class: App\Controller\ApiController
-        arguments:
-            - '@App\MessageProcessorService'
-            - '@App\MessageDtoFactory'
-        tags: [ 'controller.service_arguments' ]
+    App\Controller\FormController:
+        class: App\Controller\FormController
+        tags: ['controller.service_arguments']
+

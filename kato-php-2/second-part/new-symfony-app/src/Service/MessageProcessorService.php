@@ -2,8 +2,6 @@
 
 namespace App\Service;
 
-use App\Service\WordCountStrategy\WordCountStrategy;
-
 class MessageProcessorService
 {
     private WordCountStrategy $wordCountStrategy;
@@ -13,7 +11,7 @@ class MessageProcessorService
         $this->wordCountStrategy = $wordCountStrategy;
     }
 
-    public function countWords(string $message, array $wordsToMatch): int
+    public function countWords(string $message, array $wordsToMatch): array
     {
         return $this->wordCountStrategy->countWords($message, $wordsToMatch);
     }

@@ -13,6 +13,6 @@ class MessageDtoFactory
             throw new InvalidArgumentException('Invalid data provided.');
         }
 
-        return new MessageDTO($data['message'], $data['wordsToMatch']);
+        return new MessageDTO($data['message']);
     }
 }

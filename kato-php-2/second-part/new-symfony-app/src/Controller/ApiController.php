@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use App\Api\MessageDTO;
 use App\Factory\MessageDtoFactory;
 use App\Service\MessageProcessorService;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -11,11 +10,18 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ApiController
 {
-    public function __invoke(
-        Request $request,
+    private MessageProcessorService $messageProcessorService;
+    private MessageDtoFactory $messageDtoFactory;
+
+    public function __construct(
         MessageProcessorService $messageProcessorService,
         MessageDtoFactory $messageDtoFactory
-    ) : JsonResponse
+    ) {
+        $this->messageProcessorService = $messageProcessorService;
+        $this->messageDtoFactory = $messageDtoFactory;
+    }
+
+    public function processMessage(Request $request): JsonResponse
     {
         $data = $this->getRequestData($request);
 
@@ -24,14 +30,18 @@ class ApiController
         }
 
         try {
-            $dto = $messageDtoFactory->create($data);
+            $dto = $this->messageDtoFactory->create($data);
         } catch (\InvalidArgumentException $e) {
             return new JsonResponse(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         }
 
+        $originalMessage = $dto->getMessage();
+        $trimmedMessage = $this->trimMessage($originalMessage);
+        $wordCounts = $this->processMessageAndCountWords($trimmedMessage);
+
         return new JsonResponse([
-            'message' => $dto->getMessage(),
-            'count' => $this->processMessageAndCountWords($dto, $messageProcessorService)
+            'original_message' => $originalMessage,
+            'word_counts' => $wordCounts
         ], Response::HTTP_OK);
     }
 
@@ -42,11 +52,14 @@ class ApiController
         return json_last_error() === JSON_ERROR_NONE ? $data : null;
     }
 
-    private function processMessageAndCountWords(MessageDTO $dto, MessageProcessorService $messageProcessorService): int
+    private function trimMessage(string $message): string
     {
-        $message = $dto->getMessage();
-        $wordsToMatch = $dto->getWordsToMatch();
+        return preg_replace('/[^hello|text]/i', '', $message);
+    }
 
-        return $messageProcessorService->countWords($message, $wordsToMatch);
+    private function processMessageAndCountWords(string $message): array
+    {
+        $wordsToMatch = ['hello', 'text'];
+        return $this->messageProcessorService->countWords($message, $wordsToMatch);
     }
 }
